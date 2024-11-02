@@ -30,17 +30,30 @@ pub mod on_chain_calculator {
     pub fn update_x(ctx: Context<ChangeInternalState>, new_x: i32) -> Result<()> {
         let calculator = &mut ctx.accounts.calculator;
         calculator.x = new_x;
+
         Ok(())
     }
     /// Update Operand Y
     pub fn update_y(ctx: Context<ChangeInternalState>, new_y: i32) -> Result<()> {
         // TODO
-        todo!()
+        let calculator: &mut Account<Calculator> = &mut ctx.accounts.calculator;
+        calculator.y = new_y;
+
+        Ok(())
     }
     // TODO: Implement the `update_authority` function in the same manner as the update functions above.
 
     // HINT - function declaration can look like:
     // pub fn update_authority(ctx: Context<ChangeInternalState>, new_authority: Pubkey) -> Result<()> {}
+    pub fn update_authority(
+        ctx: Context<ChangeInternalState>,
+        new_authority: Pubkey,
+    ) -> Result<()> {
+        let calculator = &mut ctx.accounts.calculator;
+        calculator.update_authority = new_authority;
+
+        Ok(())
+    }
 
     /// This function reads data from the Calculator Account and
     /// performs an addition operation. The result, as well as the operands,
@@ -50,12 +63,12 @@ pub mod on_chain_calculator {
         let calculator = &ctx.accounts.calculator;
 
         // TODO
-        let operand_x: i32 = todo!();
+        let operand_x: i32 = calculator.x;
         // TODO
-        let operand_y: i32 = todo!();
+        let operand_y: i32 = calculator.y;
 
         // TODO
-        let result: Option<i32> = todo!();
+        let result: Option<i32> = operand_x.checked_add(operand_y);
 
         // The code below will emit operands with the result into logs.
         // We then subscribe to the logs inside tests to verify if the Calculator works correctly.
@@ -71,8 +84,66 @@ pub mod on_chain_calculator {
     // TODO: Implement other Calculator functions in the same manner as the addition function above.
     // To pass tests, use function names as follows:
     // - `subtraction`
+    pub fn subtraction(ctx: Context<Compute>) -> Result<()> {
+        let calculator = &ctx.accounts.calculator;
+
+        let operand_x: i32 = calculator.x;
+
+        let operand_y: i32 = calculator.y;
+
+        let result: Option<i32> = operand_x.checked_sub(operand_y);
+
+        // To emit
+        emit!(CalculatorEvent {
+            x: operand_x,
+            y: operand_y,
+            result,
+            op: Operation::Subtraction,
+        });
+
+        Ok(())
+    }
+
     // - `multiplication`
+    pub fn multiplication(ctx: Context<Compute>) -> Result<()> {
+        let calculator = &ctx.accounts.calculator;
+
+        let operand_x: i32 = calculator.x;
+
+        let operand_y: i32 = calculator.y;
+
+        let result: Option<i32> = operand_x.checked_mul(operand_y);
+
+        //To emit
+        emit!(CalculatorEvent {
+            x: operand_x,
+            y: operand_y,
+            result,
+            op: Operation::Multiplication,
+        });
+
+        Ok(())
+    }
     // - `division`
+    pub fn division(ctx: Context<Compute>) -> Result<()> {
+        let calculator = &ctx.accounts.calculator;
+
+        let operand_x: i32 = calculator.x;
+
+        let operand_y: i32 = calculator.y;
+
+        let result: Option<i32> = operand_x.checked_div(operand_y);
+
+        //To emit
+        emit!(CalculatorEvent {
+            x: operand_x,
+            y: operand_y,
+            result,
+            op: Operation::Division,
+        });
+
+        Ok(())
+    }
 
     // ------------------------------------------------------------------------------------------------
 }
